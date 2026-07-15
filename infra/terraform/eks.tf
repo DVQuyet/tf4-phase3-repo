@@ -39,6 +39,7 @@ module "eks" {
     kube-proxy         = {}
     vpc-cni            = {}
     aws-ebs-csi-driver = {}
+    eks-pod-identity-agent = {}
   }
 
   # EKS access entries are managed explicitly in eks-access-entries.tf.
