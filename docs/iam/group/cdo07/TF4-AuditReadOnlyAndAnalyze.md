@@ -178,6 +178,110 @@ Tài liệu này chi tiết hóa quyền hạn của Permission Set `TF4-AuditRe
             "Resource": "*"
         },
         {
+            "Sid": "ListAWSConfigEvidenceObjects",
+            "Effect": "Allow",
+            "Action": [
+                "s3:ListBucket",
+                "s3:ListBucketVersions"
+            ],
+            "Resource": [
+                "arn:aws:s3:::tf4-aws-config-staging-511825856493-us-east-1",
+                "arn:aws:s3:::tf4-aws-config-worm-archive-511825856493-us-east-1"
+            ],
+            "Condition": {
+                "StringLike": {
+                    "s3:prefix": [
+                        "aws-config",
+                        "aws-config/",
+                        "aws-config/*"
+                    ]
+                }
+            }
+        },
+        {
+            "Sid": "ReadAWSConfigBucketControls",
+            "Effect": "Allow",
+            "Action": [
+                "s3:GetBucketPolicy",
+                "s3:GetBucketPolicyStatus",
+                "s3:GetBucketOwnershipControls",
+                "s3:GetLifecycleConfiguration"
+            ],
+            "Resource": [
+                "arn:aws:s3:::tf4-aws-config-staging-511825856493-us-east-1",
+                "arn:aws:s3:::tf4-aws-config-worm-archive-511825856493-us-east-1"
+            ]
+        },
+        {
+            "Sid": "ReadAWSConfigReplication",
+            "Effect": "Allow",
+            "Action": "s3:GetReplicationConfiguration",
+            "Resource": "arn:aws:s3:::tf4-aws-config-staging-511825856493-us-east-1"
+        },
+        {
+            "Sid": "ReadAWSConfigEvidenceObjectMetadata",
+            "Effect": "Allow",
+            "Action": [
+                "s3:GetObject",
+                "s3:GetObjectVersion",
+                "s3:GetObjectAttributes",
+                "s3:GetObjectVersionAttributes"
+            ],
+            "Resource": [
+                "arn:aws:s3:::tf4-aws-config-staging-511825856493-us-east-1/aws-config/*",
+                "arn:aws:s3:::tf4-aws-config-worm-archive-511825856493-us-east-1/aws-config/*"
+            ]
+        },
+        {
+            "Sid": "ReadAWSConfigArchiveRetention",
+            "Effect": "Allow",
+            "Action": [
+                "s3:GetObjectRetention",
+                "s3:GetObjectLegalHold"
+            ],
+            "Resource": "arn:aws:s3:::tf4-aws-config-worm-archive-511825856493-us-east-1/aws-config/*"
+        },
+        {
+            "Sid": "ReadCloudTrailObjectRetention",
+            "Effect": "Allow",
+            "Action": [
+                "s3:GetObjectRetention",
+                "s3:GetObjectLegalHold"
+            ],
+            "Resource": "arn:aws:s3:::tf4-cloudtrail-logs-bucket-511825856493/*"
+        },
+        {
+            "Sid": "ReadCoreInfrastructureForCorrelation",
+            "Effect": "Allow",
+            "Action": [
+                "ec2:DescribeSecurityGroups",
+                "ec2:DescribeSubnets",
+                "ec2:DescribeVpcs",
+                "ec2:DescribeVolumes",
+                "ec2:DescribeNetworkInterfaces",
+                "ec2:DescribeRouteTables",
+                "ec2:DescribeNetworkAcls",
+                "ec2:DescribeNatGateways",
+                "ec2:DescribeInternetGateways",
+                "eks:ListClusters"
+            ],
+            "Resource": "*",
+            "Condition": {
+                "StringEquals": {
+                    "aws:RequestedRegion": "us-east-1"
+                }
+            }
+        },
+        {
+            "Sid": "ReadIdentityCenterForAccountability",
+            "Effect": "Allow",
+            "Action": [
+                "sso:ListInstances",
+                "identitystore:DescribeUser"
+            ],
+            "Resource": "*"
+        },
+        {
             "Sid": "AllowPortForwardingToApprovedBastion",
             "Effect": "Allow",
             "Action": [
@@ -210,6 +314,91 @@ Tài liệu này chi tiết hóa quyền hạn của Permission Set `TF4-AuditRe
             "Resource": [
                 "arn:aws:ssm:us-east-1:511825856493:session/${aws:userid}-*"
             ]
+        },
+        {
+            "Sid": "AuditEKSLogsBucketAndPipeline",
+            "Effect": "Allow",
+            "Action": [
+                "s3:GetBucketPolicy",
+                "s3:GetBucketPolicyStatus",
+                "s3:ListBucket",
+                "s3:GetObject"
+            ],
+            "Resource": [
+                "arn:aws:s3:::tf4-eks-audit-logs-511825856493",
+                "arn:aws:s3:::tf4-eks-audit-logs-511825856493/*"
+            ]
+        },
+        {
+            "Sid": "AuditFirehoseStreams",
+            "Effect": "Allow",
+            "Action": [
+                "firehose:DescribeDeliveryStream",
+                "firehose:ListDeliveryStreams"
+            ],
+            "Resource": "*"
+        },
+        {
+            "Sid": "AllowManageSlackWebhooksSecrets",
+            "Effect": "Allow",
+            "Action": [
+                "secretsmanager:CreateSecret",
+                "secretsmanager:PutSecretValue",
+                "secretsmanager:DescribeSecret",
+                "ssm:PutParameter",
+                "ssm:GetParameter",
+                "ssm:DescribeParameters"
+            ],
+            "Resource": [
+                "arn:aws:secretsmanager:*:*:secret:techx/tf4/alertmanager-slack-webhook*",
+                "arn:aws:ssm:*:*:parameter/security-alerts/slack-webhook-url"
+            ]
+        },
+        {
+            "Sid": "AllowDebugSecurityAlertsPipeline",
+            "Effect": "Allow",
+            "Action": [
+                "events:PutEvents",
+                "events:ListRules",
+                "events:DescribeRule",
+                "events:ListTargetsByRule",
+                "sns:ListTopics",
+                "sns:GetTopicAttributes",
+                "sns:Publish",
+                "sns:ListSubscriptionsByTopic",
+                "lambda:GetFunction",
+                "lambda:ListFunctions",
+                "lambda:InvokeFunction",
+                "logs:FilterLogEvents",
+                "logs:DescribeLogStreams",
+                "logs:GetLogEvents",
+                "ssm:StartSession"
+            ],
+            "Resource": "*"
+        },
+        {
+            "Sid": "AllowTriggerSecurityAlertsForTesting",
+            "Effect": "Allow",
+            "Action": [
+                "cloudtrail:StopLogging",
+                "cloudtrail:StartLogging",
+                "cloudtrail:DeleteTrail",
+                "iam:CreateUser",
+                "iam:DeleteUser",
+                "iam:CreateAccessKey",
+                "iam:DeleteAccessKey",
+                "iam:CreateRole",
+                "iam:AttachRolePolicy",
+                "s3:PutBucketPolicy",
+                "s3:PutBucketAcl",
+                "ec2:AuthorizeSecurityGroupIngress",
+                "ec2:RevokeSecurityGroupIngress",
+                "config:DeleteConfigurationRecorder",
+                "eks:CreateAccessEntry",
+                "eks:AssociateAccessPolicy",
+                "secretsmanager:GetSecretValue"
+            ],
+            "Resource": "*"
         }
     ]
 }
